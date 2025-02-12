@@ -1,0 +1,51 @@
+[
+  {
+    "gameId": 401705330,
+    "awayTeam": "TOR",
+    "homeTeam": "PHI",
+    "time": "2025-02-12T00:00Z",
+    "link": "/nba/game/_/gameId/401705330/raptors-76ers",
+    "broadcasts": [
+      "NBC Sports Phil",
+      "TSN",
+      "NBA League Pass"
+    ]
+  },
+  {
+    "gameId": 401705331,
+    "awayTeam": "NY",
+    "homeTeam": "IND",
+    "time": "2025-02-12T00:30Z",
+    "link": "/nba/game/_/gameId/401705331/knicks-pacers",
+    "broadcasts": [
+      "TNT",
+      "truTV",
+      "Max",
+      "MSG"
+    ]
+  },
+  {
+    "gameId": 401705332,
+    "awayTeam": "DET",
+    "homeTeam": "CHI",
+    "time": "2025-02-12T01:00Z",
+    "link": "/nba/game/_/gameId/401705332/pistons-bulls",
+    "broadcasts": [
+      "CHSN",
+      "FanDuel SN DET",
+      "NBA League Pass"
+    ]
+  },
+  {
+    "gameId": 401705333,
+    "awayTeam": "MEM",
+    "homeTeam": "PHX",
+    "time": "2025-02-12T03:00Z",
+    "link": "/nba/game/_/gameId/401705333",
+    "broadcasts": [
+      "TNT",
+      "truTV",
+      "Max"
+    ]
+  }
+]

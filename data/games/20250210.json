@@ -1,0 +1,131 @@
+[
+  {
+    "gameId": 401705321,
+    "awayTeam": "MIN",
+    "homeTeam": "CLE",
+    "time": "2025-02-11T00:00Z",
+    "link": "/nba/game/_/gameId/401705321/timberwolves-cavaliers",
+    "broadcasts": [
+      "FanDuel SN OH",
+      "FanDuel SN North",
+      "NBA League Pass"
+    ]
+  },
+  {
+    "gameId": 401705322,
+    "awayTeam": "ATL",
+    "homeTeam": "ORL",
+    "time": "2025-02-11T00:00Z",
+    "link": "/nba/game/_/gameId/401705322/hawks-magic",
+    "broadcasts": [
+      "FanDuel SN FL",
+      "FanDuel SN SE",
+      "NBA League Pass"
+    ]
+  },
+  {
+    "gameId": 401705323,
+    "awayTeam": "SA",
+    "homeTeam": "WSH",
+    "time": "2025-02-11T00:00Z",
+    "link": "/nba/game/_/gameId/401705323/spurs-wizards",
+    "broadcasts": [
+      "MNMT",
+      "FanDuel SN SW",
+      "NBA League Pass"
+    ]
+  },
+  {
+    "gameId": 401705324,
+    "awayTeam": "CHA",
+    "homeTeam": "BKN",
+    "time": "2025-02-11T00:30Z",
+    "link": "/nba/game/_/gameId/401705324/hornets-nets",
+    "broadcasts": [
+      "YES",
+      "FanDuel SN SE",
+      "NBA League Pass"
+    ]
+  },
+  {
+    "gameId": 401705325,
+    "awayTeam": "BOS",
+    "homeTeam": "MIA",
+    "time": "2025-02-11T00:30Z",
+    "link": "/nba/game/_/gameId/401705325/celtics-heat",
+    "broadcasts": [
+      "FanDuel SN Sun",
+      "NBC Sports BO",
+      "NBA League Pass"
+    ]
+  },
+  {
+    "gameId": 401705326,
+    "awayTeam": "GS",
+    "homeTeam": "MIL",
+    "time": "2025-02-11T01:00Z",
+    "link": "/nba/game/_/gameId/401705326/warriors-bucks",
+    "broadcasts": [
+      "NBA TV",
+      "FanDuel SN WI",
+      "NBC Sports BA"
+    ]
+  },
+  {
+    "gameId": 401705327,
+    "awayTeam": "NO",
+    "homeTeam": "OKC",
+    "time": "2025-02-11T01:00Z",
+    "link": "/nba/game/_/gameId/401705327/pelicans-thunder",
+    "broadcasts": [
+      "FanDuel SN OK",
+      "GCSEN",
+      "Pelicans.com",
+      "NBA League Pass"
+    ]
+  },
+  {
+    "gameId": 401705328,
+    "awayTeam": "SAC",
+    "homeTeam": "DAL",
+    "time": "2025-02-11T01:30Z",
+    "link": "/nba/game/_/gameId/401705328/kings-mavericks",
+    "broadcasts": [
+      "KFAA-TV",
+      "WFAA Channel 8",
+      "NBC Sports CA",
+      "Mavs.com",
+      "NBA League Pass"
+    ]
+  },
+  {
+    "gameId": 401705329,
+    "awayTeam": "POR",
+    "homeTeam": "DEN",
+    "time": "2025-02-11T02:00Z",
+    "link": "/nba/game/_/gameId/401705329/trail-blazers-nuggets",
+    "broadcasts": [
+      "Altitude Sports",
+      "KUNP 16",
+      "KATU 2.2",
+      "BlazerVision",
+      "NBA League Pass"
+    ]
+  },
+  {
+    "gameId": 401705334,
+    "awayTeam": "UTAH",
+    "homeTeam": "LAL",
+    "time": "2025-02-11T03:30Z",
+    "link": "/nba/game/_/gameId/401705334/jazz-lakers",
+    "broadcasts": [
+      "ESPN",
+      "ESPN+",
+      "Disney+",
+      "KJZZ-TV",
+      "Jazz+",
+      "Spectrum Sports Net",
+      "Spectrum Sports Net +"
+    ]
+  }
+]

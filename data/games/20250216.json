@@ -1,0 +1,38 @@
+[
+  {
+    "gameId": 401752955,
+    "awayTeam": "KENNY",
+    "homeTeam": "CHUCK",
+    "time": "2025-02-17T01:20Z",
+    "link": "/nba/game/_/gameId/401752955/team-kenny-team-chuck",
+    "broadcasts": [
+      "TNT",
+      "TBS",
+      "truTV"
+    ]
+  },
+  {
+    "gameId": 401752956,
+    "awayTeam": "SHAQ",
+    "homeTeam": "CANDACE",
+    "time": "2025-02-17T02:10Z",
+    "link": "/nba/game/_/gameId/401752956/team-shaq-team-candace",
+    "broadcasts": [
+      "TNT",
+      "TBS",
+      "truTV"
+    ]
+  },
+  {
+    "gameId": 401752957,
+    "awayTeam": "TBD",
+    "homeTeam": "TBD",
+    "time": "2025-02-17T03:00Z",
+    "link": "/nba/game/_/gameId/401752957/tbd-tbd",
+    "broadcasts": [
+      "TNT",
+      "TBS",
+      "truTV"
+    ]
+  }
+]

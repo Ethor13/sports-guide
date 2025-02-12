@@ -1,66 +1,86 @@
-const fetchZipcodeData = async () => {
-	const zipcode = document.getElementById("zipcode").value.trim();
-	const resultsDiv = document.getElementById("results");
+/**
+ * Creates a game card element
+ * @param {Object} game - Game data with scores
+ * @returns {string} HTML for game card
+ */
+function createGameCard(game) {
+    const interestLevel = getInterestLevel(game.slateScore);
 
-	if (!zipcode) {
-		resultsDiv.innerHTML =
-			'<p style="color: red;">Please enter a valid zipcode.</p>';
-		return;
-	}
+    return `
+		<div class="game-card ${interestLevel.className}">
+			<div class="game-header">
+				<span class="game-time">${game.time}</span>
+				<span class="interest-badge" title="Interest Score: ${game.slateScore.toFixed(3)}">
+					${interestLevel.label} (${game.slateScore.toFixed(3)})
+				</span>
+			</div>
+			<div class="matchup">
+				<div class="team away">
+					<span class="team-name">${game.awayTeam.abbreviation}</span>
+					<span class="team-record">${game.awayTeam.record}</span>
+					<span class="win-prob">${game.awayTeam.winProbability}%</span>
+				</div>
+				<div class="versus">@</div>
+				<div class="team home">
+					<span class="team-name">${game.homeTeam.abbreviation}</span>
+					<span class="team-record">${game.homeTeam.record}</span>
+					<span class="win-prob">${game.homeTeam.winProbability}%</span>
+				</div>
+			</div>
+			<div class="broadcasts">
+				${game.broadcasts.map((b) => `<span class="broadcast-tag">${b}</span>`).join("")}
+			</div>
+		</div>
+	`;
+}
 
-	const apiUrl = `/api/zipcode/${zipcode}`; // Local server endpoint
+/**
+ * Determines interest level styling based on score
+ * @param {number} score - Interest score between 0 and 1
+ * @returns {Object} Styling information
+ */
+function getInterestLevel(score) {
+    if (score >= 0.8) return { label: "Must Watch", className: "must-watch" };
+    if (score >= 0.6) return { label: "High Interest", className: "high-interest" };
+    if (score >= 0.4) return { label: "Decent", className: "decent" };
+    return { label: "Low Interest", className: "low-interest" };
+}
 
-	try {
-		resultsDiv.innerHTML = "<p>Loading...</p>";
+/**
+ * Loads and displays slate scores
+ */
+async function loadSlateScores() {
+    const container = document.getElementById("games-container");
 
-		const response = await fetch(apiUrl);
+    try {
+        container.innerHTML = '<div class="loading">Loading games...</div>';
 
-		if (!response.ok) {
-			throw new Error("Network response was not ok");
-		}
+        const response = await fetch("/api/slate-scores");
+        if (!response.ok) throw new Error("Failed to fetch games");
 
-		const data = await response.json();
+        const games = await response.json();
 
-		if (data.data && data.data.items && Array.isArray(data.data.items)) {
-			const names = await Promise.all(data.data.items.map(getPrograms));
-			resultsDiv.innerHTML = `<p><strong>Names:</strong></p><p>${names.join(
-				"<br>"
-			)}</p>`;
-		} else {
-			resultsDiv.innerHTML = `<pre>${JSON.stringify(
-				data,
-				null,
-				2
-			)}</pre>`;
-		}
-	} catch (error) {
-		resultsDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
-	}
-};
+        if (games.length === 0) {
+            container.innerHTML = '<div class="no-games">No games scheduled for today</div>';
+            return;
+        }
 
-const getPrograms = async (item) => {
-	const apiUrl = `/api/channels/${item.id}`;
+        console.log(games);
+        console.log(createGameCard(games[0]));
+        // console.log(`${Array.from(games).map(createGameCard).join("")}`);
+        container.innerHTML = `
+            <div class="games-grid">
+                ${Array.from(games).map(createGameCard).join("")}
+            </div>
+        `;
+        console.log("done");
+    } catch (error) {
+        container.innerHTML = `<div class="error">Error loading games: ${error.message}</div>`;
+    }
+}
 
-	try {
-		const response = await fetch(apiUrl);
+// Load games on page load
+document.addEventListener("DOMContentLoaded", loadSlateScores);
 
-		if (!response.ok) {
-			throw new Error("Network response was not ok");
-		}
-
-		const data = await response.json();
-
-		return (
-			`<h1>${item.name}</h1>` +
-			data.data.items
-				.filter((item) => item.programSchedules[0].catId == 2)
-				.map(
-					(item) =>
-						`Channel ${item.channel.number} ${item.channel.fullName} is playing ${item.programSchedules[0].title}`
-				)
-				.join("<br>")
-		);
-	} catch (error) {
-		return null;
-	}
-};
+// Refresh every 5 minutes
+setInterval(loadSlateScores, 300000);

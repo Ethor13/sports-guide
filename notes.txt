@@ -1,0 +1,4 @@
+In case I want to circle back on tvguide, here are some api links:
+https://backend.tvguide.com/tvschedules/tvguide/serviceproviders/zipcode/${zipcode}/web?apiKey=DI9elXhZ3bU6ujsA2gXEKOANyncXGUGc
+https://backend.tvguide.com/tvschedules/tvguide/serviceprovider/${serviceprovider}/sources/web?apiKey=DI9elXhZ3bU6ujsA2gXEKOANyncXGUGc
+https://backend.tvguide.com/tvschedules/tvguide/${serviceprovider}/web
