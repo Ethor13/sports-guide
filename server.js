@@ -9,7 +9,7 @@ const PORT = 3000;
 app.use(express.static("public"));
 
 app.get("/api/slate-scores", async (req, res) => {
-    const tomorrow = getTodayString(1);
+    const tomorrow = getTodayString(0);
     const games = await score_games(tomorrow, "cbb");
     res.json(games);
 });

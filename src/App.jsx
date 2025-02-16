@@ -1,11 +1,11 @@
-import React from 'react';
-import GamesList from './components/GamesList';
-import './App.css';
+import React from "react";
+import GamesList from "./components/GamesList";
+import "./App.css";
 
 const App = () => (
     <div className="app">
         <header>
-            <h1>NBA Slate Scores</h1>
+            <h1>Slates</h1>
         </header>
         <main>
             <GamesList />

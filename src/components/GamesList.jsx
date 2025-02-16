@@ -38,9 +38,9 @@ const GamesList = () => {
                 .sort(([timeA], [timeB]) => new Date(timeA) - new Date(timeB))
                 .map(([gameTime, games]) => (
                     <div key={gameTime} className="games-group">
-                        <h2>{formatGameTime(gameTime)}</h2>
+                        <h2 className="game-time">{formatGameTime(gameTime)}</h2>
                         {games
-                            .sort((game1, game2) => game1.slateScore - game2.slateScore)
+                            .sort((game1, game2) => game2.slateScore - game1.slateScore)
                             .map((game) => (
                                 <GameCard key={game.id} game={game} />
                             ))}
