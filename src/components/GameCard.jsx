@@ -1,6 +1,6 @@
-import React from 'react';
-import './GameCard.css';
-import { formatGameTime, getInterestLevel } from '../helpers';
+import React from "react";
+import "./GameCard.css";
+import { formatGameTime, getInterestLevel } from "../helpers";
 
 const GameCard = ({ game }) => {
     const interestLevel = getInterestLevel(game.slateScore);
@@ -8,7 +8,6 @@ const GameCard = ({ game }) => {
     return (
         <div className={`game-card ${interestLevel.className}`}>
             <div className="game-header">
-                <span className="game-time">{formatGameTime(game.date)}</span>
                 <span className="interest-badge">
                     <div>{interestLevel.label}</div>
                     <div>{(100 * game.slateScore).toFixed(0)}</div>
@@ -21,7 +20,9 @@ const GameCard = ({ game }) => {
             </div>
             <div className="broadcasts">
                 {Object.keys(game.broadcasts).map((broadcast, index) => (
-                    <span key={index} id={index} className="broadcast-tag">{broadcast}</span>
+                    <span key={index} id={index} className="broadcast-tag">
+                        {broadcast}
+                    </span>
                 ))}
             </div>
         </div>
