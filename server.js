@@ -10,8 +10,8 @@ app.use(express.static("public"));
 
 app.get("/api/slate-scores", async (req, res) => {
     const tomorrow = getTodayString(1);
-    const gameScores = await score_games(tomorrow);
-    res.json(gameScores);
+    const games = await score_games(tomorrow, "cbb");
+    res.json(games);
 });
 
 app.listen(PORT, () => {

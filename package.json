@@ -11,7 +11,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "score": "node scraper/calculate_slate_scores.js",
-    "bpi": "node scraper/scrape_bpi.js",
+    "bpi": "node scraper/scrape_power_index.js",
     "schedule": "node scraper/scrape_schedule.js"
   },
   "keywords": [],

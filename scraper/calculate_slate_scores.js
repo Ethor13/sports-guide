@@ -1,61 +1,38 @@
-import { readFileSync, existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { join } from "path";
-import { scrape_bpi } from "./scrape_bpi.js";
-import { scrapeEspnConfig, getTodayString } from "./helpers.js";
+import { scrapeGameMetrics } from "./scrape_game_metrics.js";
+import { scrapeSchedule } from "./scrape_schedule.js";
+import { deepMerge, getTodayString } from "./helpers.js";
+import { calculateGameMetrics } from "./calculate_game_metrics.js";
 
 const CONFIG = {
     paths: {
-        bpiDir: "c:/Users/ethor/python-docs/sports-guide/data/bpi",
+        powerIndexDir: "c:/Users/ethor/python-docs/sports-guide/data/power-index",
+        matchupQualityDir: "c:/Users/ethor/python-docs/sports-guide/data/matchup-quality",
         gamesDir: "c:/Users/ethor/python-docs/sports-guide/data/games",
     },
-    weights: {
-        winProbability: 0.3,
-        record: 0.2,
-        bpi: 0.5,
+    categories: {
+        allData: {
+            weights: {
+                matchupQuality: 0.4,
+                winProbability: 0.25,
+                record: 0.2,
+                powerIndex: 0.1,
+                spread: 0.05,
+            },
+            scalingFactors: {
+                powerIndex: 3,
+                spread: 50,
+            },
+            getGameMetricsFunc: getGameMetricsAllData,
+            getInterestScoreFunc: calculateInterestScoreAllData,
+        },
     },
-    bpi: { sigmoidScale: 3 },
-    espn: { baseUrl: "https://www.espn.com" },
+    sports: {
+        nba: "allData",
+        cbb: "allData",
+    },
 };
-
-/**
- * Extracts team details from ESPN data structure
- * @param {Object} teamData - Raw team data from ESPN
- * @returns {TeamInfo} Structured team information
- */
-function extractTeamDetails(teamData) {
-    const totalRecord = teamData.records.find((record) => record.type === "total");
-    return {
-        abbreviation: teamData.abbrev,
-        record: totalRecord?.summary || "0-0",
-    };
-}
-
-/**
- * Fetches and processes game information
- * @param {string} gameUrl - ESPN game URL
- * @returns {Promise<GameInfo>} Processed game information
- */
-async function fetchGameDetails(gameUrl) {
-    try {
-        const espnData = await scrapeEspnConfig(gameUrl);
-        const gameData = espnData.page.content.gamepackage;
-        const matchupPredictor = gameData.mtchpPrdctr;
-
-        return {
-            awayTeam: {
-                ...extractTeamDetails(gameData.gmStrp.tms[1]),
-                winProbability: matchupPredictor?.teams[0].value,
-            },
-            homeTeam: {
-                ...extractTeamDetails(gameData.gmStrp.tms[0]),
-                winProbability: matchupPredictor?.teams[1].value,
-            },
-            odds: gameData.gameOdds?.odds || [],
-        };
-    } catch (error) {
-        throw new Error(`Game data fetch failed: ${error.message}`);
-    }
-}
 
 /**
  * Calculates win percentage from W-L record
@@ -68,137 +45,157 @@ function calculateWinPercentage(record) {
 }
 
 /**
- * Normalizes BPI using sigmoid function
- * @param {number} bpi - Basketball Power Index value
+ * Normalizes value using sigmoid function
+ * @param {number} x - value
  * @returns {number} Normalized value between 0 and 1
  */
-function normalizeBpi(bpi) {
-    return 1 / (1 + Math.exp(-bpi / CONFIG.bpi.sigmoidScale));
+function sigmoid(x, scale) {
+    return 1 / (1 + Math.exp(-x / scale));
+}
+
+/**
+ * Normalizes value using sigmoid function
+ * @param {number} x - value
+ * @returns {number} Normalized value between 0 and 1
+ */
+function neg_exp(x, scale) {
+    return Math.exp(-Math.pow(x, 2) / scale);
 }
 
 /**
  * Calculates game interest score
- * @param {GameInfo} gameInfo - Complete game information
+ * @param {GameInfo} game - Game information
  * @returns {number} Interest score between 0 and 1
  */
-function calculateInterestScore(gameInfo) {
-    const { awayTeam, homeTeam } = gameInfo;
+function calculateInterestScorePartial(game) {
+    const { home, away } = game;
 
     // Win probability component
-    const probabilityDelta = Math.abs(awayTeam.winProbability - homeTeam.winProbability);
+    const probabilityDelta = Math.abs(home.probability - away.probability);
     const probabilityScore = 1 - probabilityDelta / 100;
 
     // Team record component
     const averageWinRate =
-        (calculateWinPercentage(awayTeam.record) + calculateWinPercentage(homeTeam.record)) / 2;
+        (calculateWinPercentage(game.home.record) + calculateWinPercentage(game.away.record)) / 2;
 
-    // BPI component
-    const averageBpi = (normalizeBpi(awayTeam.bpi) + normalizeBpi(homeTeam.bpi)) / 2;
+    // Power Index component
+    const averagePowerIndex =
+        (sigmoid(home.powerIndex, CONFIG.scalingFactors.powerIndex) +
+            sigmoid(away.powerIndex, CONFIG.scalingFactors.powerIndex)) /
+        2;
 
     return (
         probabilityScore * CONFIG.weights.winProbability +
         averageWinRate * CONFIG.weights.record +
-        averageBpi * CONFIG.weights.bpi
+        averagePowerIndex * CONFIG.weights.powerIndex
     );
 }
 
 /**
- * Parses BPI CSV data into team-indexed object
- * @param {string} csvContent - Raw CSV content
- * @returns {Object<string, TeamBPI>} BPI data by team
+ * Calculates game interest score
+ * @param {GameInfo} game - Game information
+ * @returns {number} Interest score between 0 and 1
  */
-function parseBpiData(csvContent) {
-    const [headerRow, ...dataRows] = csvContent.trim().split("\n");
-    const headers = headerRow.split(",");
+function calculateInterestScoreAllData(game) {
+    // Corresponds with "AllData" Category
+    const config = CONFIG.categories.allData;
+    const { home, away } = game;
 
-    return dataRows.reduce((teams, row) => {
-        const values = row.split(",");
-        const teamData = headers.reduce((obj, header, index) => {
-            obj[header] = values[index];
-            return obj;
-        }, {});
+    const homeMQ = home.matchupQualities;
+    const homePI = home.powerIndexes;
+    const awayMQ = away.matchupQualities;
+    const awayPI = away.powerIndexes;
 
-        teams[teamData.abbrev] = teamData;
-        return teams;
-    }, {});
+    // Matchup quality component
+    const matchupQuality = homeMQ.matchupquality / 100;
+
+    // Win probability component
+    const probabilityDelta = Math.abs(homeMQ.teampredwinpct - awayMQ.teampredwinpct);
+    const probabilityScore = 1 - probabilityDelta / 100;
+
+    // Record component
+    const homeWinRate = calculateWinPercentage(home.record);
+    const awayWinRate = calculateWinPercentage(away.record);
+    const averageWinRate = (homeWinRate + awayWinRate) / 2;
+
+    // Power Index component
+    const homePowerIndex = sigmoid(homePI.bpi.bpi, config.scalingFactors.powerIndex);
+    const awayPowerIndex = sigmoid(awayPI.bpi.bpi, config.scalingFactors.powerIndex);
+    const averagePowerIndex = (homePowerIndex + awayPowerIndex) / 2;
+
+    // Spread component
+    const spreadScore = neg_exp(homeMQ.teampredmov, config.scalingFactors.spread);
+
+    return (
+        matchupQuality * config.weights.matchupQuality +
+        probabilityScore * config.weights.winProbability +
+        averageWinRate * config.weights.record +
+        averagePowerIndex * config.weights.powerIndex +
+        spreadScore * config.weights.spread
+    );
 }
 
 /**
- * Gets BPI data for today, fetching if necessary
- * @returns {Promise<Object>} BPI data indexed by team abbreviation
+ * Gets Schedule data for today, fetching if necessary
+ * @param {string} date - Date in format MM/DD/YYYY
+ * @param {string} sport - Sport abbreviation
+ * @returns {Promise<Object>} Schedule data
  */
-async function getBpiData() {
-    const bpiPath = join(CONFIG.paths.bpiDir, `${getTodayString()}.csv`);
-
-    if (!existsSync(bpiPath)) {
-        await scrape_bpi();
-    }
-
-    const bpiContent = readFileSync(bpiPath, "utf8");
-    return parseBpiData(bpiContent);
+async function getScheduleData(date, sport) {
+    await scrapeSchedule(date, sport);
+    const gamesPath = join(CONFIG.paths.gamesDir, sport, `${date}.json`);
+    return JSON.parse(readFileSync(gamesPath, "utf8"));
 }
 
 /**
- * Scores a specific game by its link
- * @param {string} gameLink - ESPN game link
- * @returns {Promise<{gameInfo: GameInfo, score: number}>}
+ * Gets Power Index data for today, fetching if necessary
+ * @returns {Promise<Object>} Power Index data indexed by team abbreviation
  */
-async function score_game(gameLink) {
-    try {
-        const gameInfo = await fetchGameDetails(`${CONFIG.espn.baseUrl}${gameLink}`);
-        const bpiData = await getBpiData();
+async function getGameMetricsAllData(date, sport) {
+    await scrapeGameMetrics(date, sport);
 
-        gameInfo.awayTeam.bpi = parseFloat(bpiData[gameInfo.awayTeam.abbreviation].bpi);
-        gameInfo.homeTeam.bpi = parseFloat(bpiData[gameInfo.homeTeam.abbreviation].bpi);
+    const powerIndexPath = join(CONFIG.paths.powerIndexDir, sport, `${date}.json`);
+    const powerIndexData = JSON.parse(readFileSync(powerIndexPath, "utf8"));
 
-        return {
-            gameInfo,
-            slateScore: calculateInterestScore(gameInfo),
-        };
-    } catch (error) {
-        console.error(`Failed to score game ${gameLink}:`, error.message);
-        return null;
-    }
+    const matchupQualityPath = join(CONFIG.paths.matchupQualityDir, sport, `${date}.json`);
+    const matchupQualityData = JSON.parse(readFileSync(matchupQualityPath, "utf8"));
+
+    return Object.fromEntries(
+        Object.entries(matchupQualityData).map(([gameId, matchupQuality]) => [
+            gameId,
+            {
+                ...matchupQuality,
+                home: { ...powerIndexData[matchupQuality.home.id], ...matchupQuality.home },
+                away: { ...powerIndexData[matchupQuality.away.id], ...matchupQuality.away },
+            },
+        ])
+    );
 }
 
 /**
  * Scores all games for a given date
  * @param {string} date - Date in format MM/DD/YYYY
+ * @param {string} sport - Sport abbreviation
  * @returns {Promise<Array>} Sorted array of games with scores
  */
-export async function score_games(date) {
-    try {
-        // Read games file for the date
-        const gamesPath = join(CONFIG.paths.gamesDir, `${date}.json`);
-        const gamesData = JSON.parse(readFileSync(gamesPath, "utf8"));
+export async function score_games(date, sport) {
+    const sports_config = CONFIG.categories[CONFIG.sports[sport]];
 
-        // Score each game
-        const scoredGames = [];
-        for (const game of gamesData) {
-            const result = await score_game(game.link);
-            if (result) {
-                scoredGames.push({
-                    ...game,
-                    ...result.gameInfo,
-                    slateScore: result.slateScore,
-                });
-            }
-        }
+    const games = deepMerge(
+        await getScheduleData(date, sport),
+        await sports_config.getGameMetricsFunc(date, sport)
+    );
 
-        // Sort by interest score descending
-        scoredGames.sort((a, b) => b.slateScore - a.slateScore);
+    const scoredGames = Object.fromEntries(
+        Object.entries(games).map(([gameId, game]) => [
+            gameId,
+            { ...game, slateScore: sports_config.getInterestScoreFunc(game) },
+        ])
+    );
 
-        return scoredGames;
-    } catch (error) {
-        if (error.code === "ENOENT") {
-            console.error(`No games found for date ${date}`);
-        } else {
-            console.error(`Error scoring games for ${date}:`, error.message);
-        }
-        return [];
-    }
+    return scoredGames;
 }
 
 // Update main execution
 const today = getTodayString(1);
-score_games(today);
+score_games(today, "cbb");

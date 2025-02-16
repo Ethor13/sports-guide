@@ -1,74 +1,83 @@
-import { scrapeEspnConfig, getTodayString } from "./helpers.js";
+import { getTodayString, scrapeUrl, ensureDirectoryExists, combine_maps } from "./helpers.js";
 import { join } from "path";
-import { writeFileSync } from "fs";
+import { existsSync, writeFileSync } from "fs";
 
 const CONFIG = {
-    espnScheduleUrl: "https://www.espn.com/nba/schedule/_/date",
-    outputPath: "c:/Users/ethor/python-docs/sports-guide/data/games",
+    outputDir: "c:/Users/ethor/python-docs/sports-guide/data/games",
     dateFormat: {
         timeZone: "America/New_York",
         timeZoneName: "short",
+    },
+    sports: {
+        nba: (date) =>
+            `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?limit=1000&groups=50&dates=${date}`,
+        cbb: (date) =>
+            `https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?limit=1000&groups=50&dates=${date}`,
     },
 };
 
 /**
  * Extracts game details from event data
- * @param {Object} event - Event data from ESPN config
+ * @param {Object} events - Event data from ESPN config
  * @returns {Object} Formatted game information
  */
-function parseGameEvent(event) {
-    return {
-        gameId: parseInt(event.id),
-        awayTeam: event.competitors.find((team) => !team.isHome).abbrev,
-        homeTeam: event.competitors.find((team) => team.isHome).abbrev,
-        // add time zone to the time locale string
-        time: event.date,
-        link: event.link,
-        broadcasts: event.broadcasts.map((broadcast) => broadcast.name),
-    };
-}
-
-/**
- * Groups events by date
- * @param {Object} configData - ESPN configuration data
- * @returns {Object} Events organized by date
- */
-function getEventsByDate(configData) {
-    try {
-        const events = {};
-
-        // Loop through each date in the events object
-        Object.keys(configData).forEach((date) => {
-            events[date] = configData[date].map(parseGameEvent);
-        });
-
-        return events;
-    } catch (error) {
-        throw new Error(`Failed to parse events: ${error.message}`);
-    }
+function parseEvents(events) {
+    return combine_maps(
+        events.events.map((event) => ({
+            [event.id]: {
+                ...combine_maps(
+                    event.competitions[0].competitors.map((team) => ({
+                        [team.homeAway]: {
+                            id: team.team.id,
+                            name: team.team.displayName,
+                            shortName: team.team.shortDisplayName,
+                            abbreviation: team.team.abbreviation,
+                            logo: team.team.logo,
+                            record: team.records.find((record) => record.type === "total").summary,
+                        },
+                    }))
+                ),
+                date: event.date,
+                link: event.links.find((link) => link.text === "Gamecast").href,
+                broadcasts: combine_maps(
+                    event.competitions[0].geoBroadcasts.map((broadcast) => ({
+                        [broadcast.media.shortName]: {
+                            market: broadcast.market.type,
+                            type: broadcast.type.shortName,
+                        },
+                    }))
+                ),
+            },
+        }))
+    );
 }
 
 /**
  * Main execution function
  */
-async function main() {
+export async function scrapeSchedule(date, sport) {
     try {
         // Fetch and parse schedule data
-        const url = `${CONFIG.espnScheduleUrl}/${getTodayString()}`;
-        const espnData = await scrapeEspnConfig(url);
-        const eventsByDate = getEventsByDate(espnData.page.content.events);
+        const outputDir = join(CONFIG.outputDir, sport);
+        const outputPath = join(outputDir, `${date}.json`);
 
-        // Write results to files by date
-        Object.entries(eventsByDate).forEach(([date, games]) => {
-            const outputFile = join(CONFIG.outputPath, `${date}.json`);
-            writeFileSync(outputFile, JSON.stringify(games, null, 2));
-        });
+        // Skip if already scraped today
+        if (existsSync(outputPath)) {
+            console.log("Schedule data already exists for today");
+            return;
+        }
 
-        console.log(`Schedule data written to ${CONFIG.outputPath}`);
+        const espnData = await scrapeUrl(CONFIG.sports[sport](date));
+        const parsedSchedule = parseEvents(espnData);
+
+        ensureDirectoryExists(outputDir);
+        writeFileSync(outputPath, JSON.stringify(parsedSchedule, null, 2));
+        console.log(`Schedule data written to ${outputDir}`);
     } catch (error) {
         console.error("Error:", error.message);
         process.exit(1);
     }
 }
 
-main();
+const today = getTodayString(1);
+scrapeSchedule(today, "cbb");

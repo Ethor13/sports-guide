@@ -12,9 +12,9 @@ const GamesList = () => {
             setLoading(true);
             const response = await fetch('/api/slate-scores');
             if (!response.ok) throw new Error('Failed to fetch games');
-            
-            const data = await response.json();
-            setGames(data || []);
+
+            const games = await response.json();
+            setGames(games || {});
             setError(null);
         } catch (err) {
             setError(err.message);
@@ -25,19 +25,17 @@ const GamesList = () => {
 
     useEffect(() => {
         fetchGames();
-        const interval = setInterval(fetchGames, 300000); // 5 minutes
-        return () => clearInterval(interval);
     }, []);
 
     if (loading) return <div className="loading">Loading games...</div>;
     if (error) return <div className="error">Error: {error}</div>;
-    if (!games.length) return <div className="no-games">No games scheduled</div>;
+    if (!Object.keys(games).length) return <div className="no-games">No games scheduled</div>;
 
     return (
         <div className="games-grid">
-            {games.map(game => (
-                <GameCard key={game.id} game={game} />
-            ))}
+            {Object.entries(games)
+                .sort(([_, a], [__, b]) => b.slateScore - a.slateScore)
+                .map(([gameId, game]) => ( <GameCard key={gameId} game={game} />))}
         </div>
     );
 };
