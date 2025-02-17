@@ -59,7 +59,7 @@ function mappify(keys, values) {
 }
 
 function combine_maps(maps) {
-    return Object.assign({}, ...maps);
+    return Object.assign({}, ...(maps || []));
 }
 
 function deepMerge(target, source) {

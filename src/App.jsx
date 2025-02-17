@@ -4,8 +4,15 @@ import SportSelector from "./components/SportSelector";
 import "./App.css";
 
 const App = () => {
-    const [selectedSport, setSelectedSport] = useState("");
-    const [selectedDate, setSelectedDate] = useState("");
+    const [selectedSports, setSelectedSports] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(new Date());
+
+    const props = {
+        selectedSports,
+        setSelectedSports,
+        selectedDate,
+        setSelectedDate,
+    };
 
     return (
         <div className="app">
@@ -13,8 +20,8 @@ const App = () => {
                 <h1>Slates</h1>
             </header>
             <main>
-                <SportSelector onSportChange={setSelectedSport} onDateChange={setSelectedDate} />
-                <GamesList sport={selectedSport} date={selectedDate} />
+                <SportSelector props={props} />
+                <GamesList sports={selectedSports} date={selectedDate} />
             </main>
         </div>
     );

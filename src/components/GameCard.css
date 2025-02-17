@@ -1,5 +1,6 @@
 :root {
     --border-radius: 8px;
+    --game-card-width: 50rem;
     --game-card-offset: 5rem;
 }
 
@@ -10,7 +11,7 @@ html {
 }
 
 .game-time {
-    margin-top: 0;
+    margin: 0;
     font-size: 2rem;
 }
 
@@ -18,8 +19,8 @@ html {
     background: white;
     border-radius: var(--border-radius);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1rem;
     height: 10rem;
+    width: var(--game-card-width);
     justify-content: space-around;
     align-items: center;
     position: relative;
@@ -31,7 +32,7 @@ html {
 }
 
 .game-header {
-    width: 100%;
+    width: var(--game-card-width);
     height: 100%;
     border-radius: var(--border-radius);
     font-size: 1rem;
@@ -49,7 +50,7 @@ html {
 }
 
 .game-body {
-    width: calc(100% - var(--game-card-offset));
+    width: calc(var(--game-card-width) - var(--game-card-offset));
     height: 10rem;
     margin-left: var(--game-card-offset);
     z-index: 2;
@@ -210,5 +211,14 @@ html {
     .game-header {
         background: #fee2e2;
         color: #b91c1c;
+    }
+}
+
+.unknown-interest {
+    border-left: 4px solid #6d6d6d;
+
+    .game-header {
+        color: #6d6d6d;
+        background: #acacac;
     }
 }

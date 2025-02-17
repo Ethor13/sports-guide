@@ -1,8 +1,13 @@
-.selector {
-    font-size: 0.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 20vw;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: #fff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
 .sports-selector {

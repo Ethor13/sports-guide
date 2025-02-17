@@ -106,6 +106,10 @@ function calculateInterestScoreAllData(game) {
     const awayMQ = away.matchupQualities;
     const awayPI = away.powerIndexes;
 
+    if (!homeMQ || !homePI || !awayMQ || !awayPI) {
+        return -1;
+    }
+
     // Matchup quality component
     const matchupQuality = homeMQ.matchupquality / 100;
 
@@ -197,5 +201,6 @@ export async function score_games(date, sport) {
 }
 
 // Update main execution
-const today = getTodayString(1);
-score_games(today, "ncaambb");
+const today = getTodayString(0);
+// score_games(today, "ncaambb");
+score_games(today, "nba");

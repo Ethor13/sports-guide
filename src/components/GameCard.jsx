@@ -8,7 +8,7 @@ const GameCard = ({ game }) => {
     return (
         <div className={`game-card ${interestLevel.className}`}>
             <div className="game-header">
-                <div className="interest-level">{(100 * game.slateScore).toFixed(0)}</div>
+                <div className="interest-level">{interestLevel.rating}</div>
             </div>
             <div className="game-body">
                 <div className="matchup">
@@ -29,10 +29,12 @@ const TeamInfo = ({ homeAway, team }) => {
                 <div className="team-summary">
                     <span className="team-name">{team.shortName}</span>
                     <div className="team-stats">
-                        <span className="team-record">({team.record})</span>
-                        <span className="win-prob">
-                            {team.matchupQualities.teampredwinpct.toFixed(0)}%
-                        </span>
+                        {team.record && <span className="team-record">({team.record})</span>}
+                        {team.matchupQualities && (
+                            <span className="win-prob">
+                                {team.matchupQualities?.teampredwinpct.toFixed(0)}%
+                            </span>
+                        )}
                     </div>
                 </div>
                 <img className="team-logo" src={team.logo.split(".com")[1]} alt="" />

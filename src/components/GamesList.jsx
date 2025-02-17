@@ -3,15 +3,26 @@ import GameCard from "./GameCard";
 import "./GamesList.css";
 import { formatGameTime } from "../helpers";
 
-const GamesList = () => {
+const GamesList = ({ sports, date }) => {
+    // changed to accept props
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const fetchGames = async () => {
+        if (!sports) {
+            setGames({});
+            return;
+        }
         try {
             setLoading(true);
-            const response = await fetch("/api/slate-scores/ncaambb");
+            const formattedDate = date
+                ? new Date(date).toISOString().split("T")[0].replaceAll("-", "")
+                : "";
+            console.log(formattedDate);
+            const endpoint = `/api/slate-scores/${sports}/${formattedDate}`;
+            console.log(endpoint);
+            const response = await fetch(endpoint);
             if (!response.ok) throw new Error("Failed to fetch games");
 
             const games = await response.json();
@@ -26,7 +37,7 @@ const GamesList = () => {
 
     useEffect(() => {
         fetchGames();
-    }, []);
+    }, [sports, date]); // re-fetch when sport or date changes
 
     if (loading) return <div className="loading">Loading games...</div>;
     if (error) return <div className="error">Error: {error}</div>;

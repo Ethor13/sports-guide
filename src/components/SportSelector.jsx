@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "./SportSelector.css";
-// import "./rdp.css";
+import "./rdp.css";
 
-const App = () => {
-    const [selectedSports, setSelectedSports] = useState([]);
-    const [selectedDate, setSelectedDate] = useState("");
+const App = ({ props }) => {
+    const { selectedSports, setSelectedSports, selectedDate, setSelectedDate, onSelect } = props;
 
     const handleSportChange = (sport) => {
         setSelectedSports(
@@ -21,7 +20,7 @@ const App = () => {
     };
 
     return (
-        <div className="selector">
+        <div className="sidebar">
             <div className="calendar">
                 <DayPicker
                     captionLayout="label"
@@ -32,6 +31,8 @@ const App = () => {
                     numerals="latn"
                     timeZone="America/New_York"
                     weekStartsOn={0}
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
                 />
             </div>
             <div className="sports-selector">
@@ -51,7 +52,10 @@ const App = () => {
                 </button>
             </div>
             <p>Selected Sport: {selectedSports.join(", ")}</p>
-            <p>Selected Date: {selectedDate}</p>
+            <p>
+                Selected Date:{" "}
+                {selectedDate ? selectedDate.toLocaleDateString() : "No date selected"}
+            </p>
         </div>
     );
 };
