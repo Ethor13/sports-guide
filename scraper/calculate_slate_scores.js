@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { scrapeGameMetrics } from "./scrape_game_metrics.js";
 import { scrapeSchedule } from "./scrape_schedule.js";
-import { deepMerge, getTodayString } from "./helpers.js";
+import { combine_maps, deepMerge, getTodayString } from "./helpers.js";
 import { calculateGameMetrics } from "./calculate_game_metrics.js";
 
 const CONFIG = {
@@ -180,9 +180,9 @@ async function getGameMetricsAllData(date, sport) {
  * Scores all games for a given date
  * @param {string} date - Date in format MM/DD/YYYY
  * @param {string} sport - Sport abbreviation
- * @returns {Promise<Array>} Sorted array of games with scores
+ * @returns {Promise<Object>} Sorted array of games with scores
  */
-export async function score_games(date, sport) {
+async function score_sport_games(date, sport) {
     const sports_config = CONFIG.categories[CONFIG.sports[sport]];
 
     const games = deepMerge(
@@ -193,14 +193,30 @@ export async function score_games(date, sport) {
     const scoredGames = Object.fromEntries(
         Object.entries(games).map(([gameId, game]) => [
             gameId,
-            { ...game, slateScore: sports_config.getInterestScoreFunc(game) },
+            {
+                ...game,
+                sport,
+                slateScore: (() => {
+                    try {
+                        return sports_config.getInterestScoreFunc(game);
+                    } catch (error) {
+                        return -1;
+                    }
+                })(),
+            },
         ])
     );
 
     return scoredGames;
 }
 
+export async function score_sports_games(date, sports) {
+    sports = sports.length > 0 ? sports : Object.keys(CONFIG.sports);
+    console.log(sports);
+    const games = await Promise.all(sports.map((sport) => score_sport_games(date, sport)));
+    return combine_maps(games);
+}
+
 // Update main execution
 const today = getTodayString(0);
-// score_games(today, "ncaambb");
-score_games(today, "nba");
+score_sports_games(today, []);

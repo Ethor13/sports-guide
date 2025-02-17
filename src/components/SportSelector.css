@@ -8,6 +8,9 @@
     padding: 1rem;
     background-color: #fff;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .sports-selector {
@@ -46,7 +49,5 @@ img {
 }
 
 .calendar {
-    /* position: fixed;
-    left: 2rem;
-    top: 1rem; */
+    margin-bottom: 3rem;
 }

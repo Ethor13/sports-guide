@@ -51,11 +51,6 @@ const App = ({ props }) => {
                     <span>NCAA Men's Basketball</span>
                 </button>
             </div>
-            <p>Selected Sport: {selectedSports.join(", ")}</p>
-            <p>
-                Selected Date:{" "}
-                {selectedDate ? selectedDate.toLocaleDateString() : "No date selected"}
-            </p>
         </div>
     );
 };

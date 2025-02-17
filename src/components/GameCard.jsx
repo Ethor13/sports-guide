@@ -29,10 +29,10 @@ const TeamInfo = ({ homeAway, team }) => {
                 <div className="team-summary">
                     <span className="team-name">{team.shortName}</span>
                     <div className="team-stats">
-                        {team.record && <span className="team-record">({team.record})</span>}
+                        <span className="team-record">({team.record})</span>
                         {team.matchupQualities && (
                             <span className="win-prob">
-                                {team.matchupQualities?.teampredwinpct.toFixed(0)}%
+                                {team.matchupQualities.teampredwinpct.toFixed(0)}%
                             </span>
                         )}
                     </div>

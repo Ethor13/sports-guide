@@ -19,9 +19,11 @@ const GamesList = ({ sports, date }) => {
             const formattedDate = date
                 ? new Date(date).toISOString().split("T")[0].replaceAll("-", "")
                 : "";
-            console.log(formattedDate);
-            const endpoint = `/api/slate-scores/${sports}/${formattedDate}`;
-            console.log(endpoint);
+
+            // Updated endpoint to use query parameters: sports and date
+            let endpoint = `/api/slate-scores?date=${formattedDate}`;
+            endpoint += sports.length > 0 ? `&sports=${sports.join(",")}` : "";
+
             const response = await fetch(endpoint);
             if (!response.ok) throw new Error("Failed to fetch games");
 

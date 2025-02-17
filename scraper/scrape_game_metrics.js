@@ -31,6 +31,17 @@ const CONFIG = {
         powerIndex: parsePowerIndex,
         matchupQuality: parseMatchupQuality,
     },
+    statNameMapper: {
+        matchupquality: "matchupquality",
+        teampredwinpct: "teampredwinpct",
+        gameprojection: "teampredwinpct",
+        opponentpredwinpct: "teampredlosspct",
+        teamchanceloss: "teampredlosspct",
+        teampredmov: "teampredmov",
+        teampredptdiff: "favoredteampredmov",
+        teamexpectedpts: "teamexpectedpts",
+        oppexpectedpts: "oppexpectedpts",
+    },
 };
 
 function parsePowerIndex(espnData) {
@@ -64,7 +75,9 @@ function parseMatchupQuality(espnData) {
             const matchupQualities = combine_maps(
                 event.competitions[0].powerIndexes?.map((teamPowerIndexes) => ({
                     [teamPowerIndexes.id]: combine_maps(
-                        teamPowerIndexes.stats.map((stat) => ({ [stat.name]: stat.value }))
+                        teamPowerIndexes.stats.map((stat) => ({
+                            [CONFIG.statNameMapper[stat.name]]: stat.value,
+                        }))
                     ),
                 }))
             );
@@ -121,4 +134,4 @@ export async function scrapeGameMetrics(date, sport) {
 }
 
 const today = getTodayString(1);
-scrapeGameMetrics(today, "ncaambb");
+scrapeGameMetrics(today, "nba");
