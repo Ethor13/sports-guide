@@ -1,0 +1,47 @@
+.selector {
+    font-size: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.sports-selector {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.sports-selector button {
+    width: 8rem;
+    height: 8rem;
+    padding: 2px 0;
+
+    font-family: "Montserrat", sans-serif;
+    cursor: pointer;
+    box-sizing: border-box;
+    border: 1px solid rgb(198, 198, 198);
+    border-radius: 2rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sports-selector button.active {
+    border: 3px solid #007acc;
+    padding: 0;
+}
+
+img {
+    width: 4rem;
+    height: 4rem;
+}
+
+.calendar {
+    /* position: fixed;
+    left: 2rem;
+    top: 1rem; */
+}

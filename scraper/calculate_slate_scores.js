@@ -30,7 +30,7 @@ const CONFIG = {
     },
     sports: {
         nba: "allData",
-        cbb: "allData",
+        ncaambb: "allData",
     },
 };
 
@@ -198,4 +198,4 @@ export async function score_games(date, sport) {
 
 // Update main execution
 const today = getTodayString(1);
-score_games(today, "cbb");
+score_games(today, "ncaambb");

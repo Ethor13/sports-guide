@@ -20,7 +20,7 @@ const CONFIG = {
             matchupQuality: (date) =>
                 `https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/dailypowerindex?limit=1000&dates=${date}`,
         },
-        cbb: {
+        ncaambb: {
             powerIndex: (date) =>
                 "https://site.web.api.espn.com/apis/fitt/v3/sports/basketball/mens-college-basketball/powerindex?limit=1000",
             matchupQuality: (date) =>
@@ -121,4 +121,4 @@ export async function scrapeGameMetrics(date, sport) {
 }
 
 const today = getTodayString(1);
-scrapeGameMetrics(today, "cbb");
+scrapeGameMetrics(today, "ncaambb");

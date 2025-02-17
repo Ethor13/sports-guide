@@ -11,7 +11,7 @@ const CONFIG = {
     sports: {
         nba: (date) =>
             `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?limit=1000&groups=50&dates=${date}`,
-        cbb: (date) =>
+        ncaambb: (date) =>
             `https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?limit=1000&groups=50&dates=${date}`,
     },
 };
@@ -80,4 +80,4 @@ export async function scrapeSchedule(date, sport) {
 }
 
 const today = getTodayString(1);
-scrapeSchedule(today, "cbb");
+scrapeSchedule(today, "ncaambb");

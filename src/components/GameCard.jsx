@@ -1,6 +1,6 @@
 import React from "react";
 import "./GameCard.css";
-import { formatGameTime, getInterestLevel } from "../helpers";
+import { getInterestLevel } from "../helpers";
 
 const GameCard = ({ game }) => {
     const interestLevel = getInterestLevel(game.slateScore);
@@ -22,22 +22,24 @@ const GameCard = ({ game }) => {
     );
 };
 
-const TeamInfo = ({ homeAway, team }) => (
-    <div className={`team ${homeAway}`}>
-        <div className="team-info">
-            <div className="team-summary">
-                <span className="team-name">{team.shortName}</span>
-                <div className="team-stats">
-                    <span className="team-record">({team.record})</span>
-                    <span className="win-prob">
-                        {team.matchupQualities.teampredwinpct.toFixed(0)}%
-                    </span>
+const TeamInfo = ({ homeAway, team }) => {
+    return (
+        <div className={`team ${homeAway}`}>
+            <div className="team-info">
+                <div className="team-summary">
+                    <span className="team-name">{team.shortName}</span>
+                    <div className="team-stats">
+                        <span className="team-record">({team.record})</span>
+                        <span className="win-prob">
+                            {team.matchupQualities.teampredwinpct.toFixed(0)}%
+                        </span>
+                    </div>
                 </div>
+                <img className="team-logo" src={team.logo.split(".com")[1]} alt="" />
             </div>
-            <img className="team-logo" src={team.logo} alt="" />
         </div>
-    </div>
-);
+    );
+};
 
 const Broadcasts = ({ broadcasts }) => {
     if (!Object.keys(broadcasts).length) {

@@ -7,7 +7,7 @@ const CONFIG = {
         averageTotalPoints: 226,
         pythagoreanExponent: 16.5,
     },
-    cbb: {
+    ncaambb: {
         homeCourtAdvantage: 3.5,
         averageTotalPoints: 140,
         pythagoreanExponent: 11.5,

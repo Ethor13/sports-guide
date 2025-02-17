@@ -11,7 +11,7 @@ const GamesList = () => {
     const fetchGames = async () => {
         try {
             setLoading(true);
-            const response = await fetch("/api/slate-scores");
+            const response = await fetch("/api/slate-scores/ncaambb");
             if (!response.ok) throw new Error("Failed to fetch games");
 
             const games = await response.json();
