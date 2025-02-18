@@ -31,8 +31,9 @@ const App = ({ props }) => {
                     numerals="latn"
                     timeZone="America/New_York"
                     weekStartsOn={0}
+                    disabled={{ before: new Date() }}
                     selected={selectedDate}
-                    onSelect={setSelectedDate}
+                    onSelect={handleDateChange}
                 />
             </div>
             <div className="sports-selector">
