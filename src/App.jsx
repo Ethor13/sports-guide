@@ -6,12 +6,15 @@ import "./App.css";
 const App = () => {
     const [selectedSports, setSelectedSports] = useState([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [sortBy, setSortBy] = useState("time");
 
     const props = {
         selectedSports,
         setSelectedSports,
         selectedDate,
         setSelectedDate,
+        sortBy,
+        setSortBy,
     };
 
     return (
@@ -21,7 +24,7 @@ const App = () => {
             </header>
             <main>
                 <SportSelector props={props} />
-                <GamesList sports={selectedSports} date={selectedDate} />
+                <GamesList sports={selectedSports} date={selectedDate} sortBy={sortBy} />
             </main>
         </div>
     );

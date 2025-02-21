@@ -79,5 +79,5 @@ export async function scrapeSchedule(date, sport) {
     }
 }
 
-const today = getTodayString(10);
+const today = getTodayString(1);
 scrapeSchedule(today, "nba");

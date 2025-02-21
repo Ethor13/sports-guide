@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { scrapeGameMetrics } from "./scrape_game_metrics.js";
 import { scrapeSchedule } from "./scrape_schedule.js";
@@ -14,14 +14,17 @@ const CONFIG = {
     categories: {
         allData: {
             weights: {
-                matchupQuality: 0.4,
-                winProbability: 0.25,
-                record: 0.2,
-                powerIndex: 0.1,
-                spread: 0.05,
+                matchupQuality: 3,
+                winProbability: 1,
+                record: 5,
+                powerIndex: 2,
+                spread: 0.5,
             },
             scalingFactors: {
-                powerIndex: 3,
+                powerIndex: {
+                    nba: 3,
+                    ncaambb: 8,
+                },
                 spread: 50,
             },
             getGameMetricsFunc: getGameMetricsAllData,
@@ -75,14 +78,14 @@ function calculateInterestScorePartial(game) {
     const probabilityScore = 1 - probabilityDelta / 100;
 
     // Team record component
-    const averageWinRate =
-        (calculateWinPercentage(game.home.record) + calculateWinPercentage(game.away.record)) / 2;
+    const homeWinRate = calculateWinPercentage(home.record);
+    const awayWinRate = calculateWinPercentage(away.record);
+    const averageWinRate = (homeWinRate + awayWinRate) / 2;
 
     // Power Index component
-    const averagePowerIndex =
-        (sigmoid(home.powerIndex, CONFIG.scalingFactors.powerIndex) +
-            sigmoid(away.powerIndex, CONFIG.scalingFactors.powerIndex)) /
-        2;
+    const homeScaledPI = sigmoid(home.powerIndex, CONFIG.scalingFactors.powerIndex);
+    const awayScaledPI = sigmoid(away.powerIndex, CONFIG.scalingFactors.powerIndex);
+    const averagePowerIndex = (homeScaledPI + awayScaledPI) / 2;
 
     return (
         probabilityScore * CONFIG.weights.winProbability +
@@ -94,10 +97,10 @@ function calculateInterestScorePartial(game) {
 /**
  * Calculates game interest score
  * @param {GameInfo} game - Game information
+ * @param {string} sport - Sport abbreviation
  * @returns {number} Interest score between 0 and 1
  */
-function calculateInterestScoreAllData(game) {
-    // Corresponds with "AllData" Category
+function calculateInterestScoreAllData(game, sport) {
     const config = CONFIG.categories.allData;
     const { home, away } = game;
 
@@ -106,37 +109,55 @@ function calculateInterestScoreAllData(game) {
     const awayMQ = away.matchupQualities;
     const awayPI = away.powerIndexes;
 
-    if (!homeMQ || !homePI || !awayMQ || !awayPI) {
-        return -1;
-    }
+    const components = [];
+    const weights = [];
 
     // Matchup quality component
-    const matchupQuality = homeMQ.matchupquality / 100;
+    if (homeMQ.matchupquality != null) {
+        components.push((homeMQ.matchupquality / 100) * config.weights.matchupQuality);
+        weights.push(config.weights.matchupQuality);
+    }
 
     // Win probability component
-    const probabilityDelta = Math.abs(homeMQ.teampredwinpct - awayMQ.teampredwinpct);
-    const probabilityScore = 1 - probabilityDelta / 100;
+    if (homeMQ.teampredwinpct != null && awayMQ.teampredwinpct != null) {
+        const probabilityDelta = Math.abs(homeMQ.teampredwinpct - awayMQ.teampredwinpct);
+        components.push((1 - probabilityDelta / 100) * config.weights.winProbability);
+        weights.push(config.weights.winProbability);
+    }
 
     // Record component
-    const homeWinRate = calculateWinPercentage(home.record);
-    const awayWinRate = calculateWinPercentage(away.record);
-    const averageWinRate = (homeWinRate + awayWinRate) / 2;
+    if (home.record != null && away.record != null) {
+        const homeWinRate = calculateWinPercentage(home.record);
+        const awayWinRate = calculateWinPercentage(away.record);
+        const averageWinRate = (homeWinRate + awayWinRate) / 2;
+        components.push(averageWinRate * config.weights.record);
+        weights.push(config.weights.record);
+    }
 
     // Power Index component
-    const homePowerIndex = sigmoid(homePI.bpi.bpi, config.scalingFactors.powerIndex);
-    const awayPowerIndex = sigmoid(awayPI.bpi.bpi, config.scalingFactors.powerIndex);
-    const averagePowerIndex = (homePowerIndex + awayPowerIndex) / 2;
+    if (homePI.bpi?.bpi != null && awayPI.bpi?.bpi != null) {
+        const homePowerIndex = sigmoid(homePI.bpi.bpi, config.scalingFactors.powerIndex[sport]);
+        const awayPowerIndex = sigmoid(awayPI.bpi.bpi, config.scalingFactors.powerIndex[sport]);
+        const averagePowerIndex = (homePowerIndex + awayPowerIndex) / 2;
+        components.push(averagePowerIndex * config.weights.powerIndex);
+        weights.push(config.weights.powerIndex);
+    }
 
     // Spread component
-    const spreadScore = neg_exp(homeMQ.teampredmov, config.scalingFactors.spread);
+    if (homeMQ.teampredmov != null) {
+        const spreadScore = neg_exp(homeMQ.teampredmov, config.scalingFactors.spread);
+        components.push(spreadScore * config.weights.spread);
+        weights.push(config.weights.spread);
+    }
 
-    return (
-        matchupQuality * config.weights.matchupQuality +
-        probabilityScore * config.weights.winProbability +
-        averageWinRate * config.weights.record +
-        averagePowerIndex * config.weights.powerIndex +
-        spreadScore * config.weights.spread
-    );
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
+
+    if (totalWeight === 0) {
+        return -1;
+    } else {
+        const slateScore = components.reduce((a, b) => a + b, 0) / totalWeight;
+        return slateScore;
+    }
 }
 
 /**
@@ -198,7 +219,7 @@ async function score_sport_games(date, sport) {
                 sport,
                 slateScore: (() => {
                     try {
-                        return sports_config.getInterestScoreFunc(game);
+                        return sports_config.getInterestScoreFunc(game, sport);
                     } catch (error) {
                         return -1;
                     }
@@ -218,5 +239,10 @@ export async function score_sports_games(date, sports) {
 }
 
 // Update main execution
-const today = getTodayString(0);
-score_sports_games(today, []);
+const today = getTodayString(1);
+score_sports_games(today, []).then(
+    (games) => writeFileSync(
+        "c:/Users/ethor/python-docs/sports-guide/data/sample/slate_scores.json",
+        JSON.stringify(games, null, 4)
+    )
+);

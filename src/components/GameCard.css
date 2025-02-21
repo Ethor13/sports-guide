@@ -1,7 +1,12 @@
 :root {
     --border-radius: 8px;
+    --border-highlight: 4px;
     --game-card-width: 50rem;
+    --game-card-interior: calc(var(--game-card-width) - var(--border-highlight));
     --game-card-offset: 5rem;
+    --game-card-height: 10rem;
+    --league-logo-size: 4rem;
+    --team-logo-size: 4rem; 
 }
 
 html {
@@ -19,12 +24,13 @@ html {
     background: white;
     border-radius: var(--border-radius);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    height: 10rem;
+    height: var(--game-card-height);
     width: var(--game-card-width);
     justify-content: space-around;
     align-items: center;
     position: relative;
     z-index: 0;
+    border-left: var(--border-highlight) solid #6d6d6d;
 }
 
 .game-card > * {
@@ -32,25 +38,47 @@ html {
 }
 
 .game-header {
-    width: var(--game-card-width);
+    width: var(--game-card-interior);
     height: 100%;
     border-radius: var(--border-radius);
     font-size: 1rem;
     font-weight: 600;
     z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.game-header > * {
+    margin-right: calc(var(--game-card-interior) - var(--game-card-offset));
+}
+
+.matchup-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.league-logo {
+    right: calc(var(--league-logo-size) / -2);
+    top: calc(var(--game-card-height) / 2 - var(--league-logo-size) / 2);
+    width: var(--league-logo-size);
+    height: var(--league-logo-size);
+    margin-left: 1rem;
 }
 
 .interest-level {
     font-size: 2rem;
     width: var(--game-card-offset);
-    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .game-body {
-    width: calc(var(--game-card-width) - var(--game-card-offset));
+    width: calc(var(--game-card-interior) - var(--game-card-offset));
     height: 10rem;
     margin-left: var(--game-card-offset);
     z-index: 2;
@@ -58,12 +86,19 @@ html {
     border-radius: var(--border-radius);
     box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
     display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.game-info {
+    height: 100%;
+    display: flex;
     flex-direction: column;
     gap: 1rem;
+    flex-grow: 1;
 }
 
 .matchup {
-    height: 8rem;
     flex-grow: 1;
     display: flex;
     flex-direction: row;
@@ -115,8 +150,8 @@ html {
 }
 
 .team-logo {
-    width: 5rem;
-    height: 5rem;
+    width: var(--team-logo-size);
+    height: var(--team-logo-size);
     flex-direction: column;
     align-items: center;
 }
@@ -145,7 +180,6 @@ html {
     justify-content: center;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
-    height: 2rem;
     font-size: 0.75rem;
     color: #4b5563;
 }
@@ -160,6 +194,7 @@ html {
 .broadcast-tag {
     width: fit-content;
     text-align: center;
+    font-weight: 700;
     background: #f3f4f6;
     padding: 0.25rem 0.75rem;
     border: 1px solid rgb(198, 198, 198);
@@ -168,18 +203,12 @@ html {
 
 .score {
     font-size: 1.1rem;
-    font-weight: bold;
-}
-
-.game-info {
-    text-align: center;
-    font-size: 0.9rem;
-    color: #666;
+    font-weight: 700;
 }
 
 /* Interest level styles */
 .must-watch {
-    border-left: 4px solid #22c55e;
+    border-color: #22c55e;
 
     .game-header {
         background: #dcfce7;
@@ -188,7 +217,7 @@ html {
 }
 
 .high-interest {
-    border-left: 4px solid #3b82f6;
+    border-color: #3b82f6;
 
     .game-header {
         background: #dbeafe;
@@ -197,7 +226,7 @@ html {
 }
 
 .decent {
-    border-left: 4px solid #f59e0b;
+    border-color: #f59e0b;
 
     .game-header {
         background: #fef3c7;
@@ -206,7 +235,7 @@ html {
 }
 
 .low-interest {
-    border-left: 4px solid #ef4444;
+    border-color: #ef4444;
 
     .game-header {
         background: #fee2e2;
@@ -215,7 +244,7 @@ html {
 }
 
 .unknown-interest {
-    border-left: 4px solid #6d6d6d;
+    border-color: #6d6d6d;
 
     .game-header {
         color: #6d6d6d;

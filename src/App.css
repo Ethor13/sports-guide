@@ -5,7 +5,6 @@ html {
 header {
     text-align: center;
     margin-bottom: 2rem;
-    margin-left: calc(20vw + 1.5rem);
 }
 
 header h1 {

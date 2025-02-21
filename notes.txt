@@ -3,7 +3,5 @@ https://backend.tvguide.com/tvschedules/tvguide/serviceproviders/zipcode/${zipco
 https://backend.tvguide.com/tvschedules/tvguide/serviceprovider/${serviceprovider}/sources/web?apiKey=DI9elXhZ3bU6ujsA2gXEKOANyncXGUGc
 https://backend.tvguide.com/tvschedules/tvguide/${serviceprovider}/web
 
-league logos
-https://a.espncdn.com/i/teamlogos/leagues/500/nba.png
-https://a.espncdn.com/i/teamlogos/leagues/500/nfl.png
-https://a.espncdn.com/i/teamlogos/leagues/500/nhl.png
+Todo:
+- make it so we can sort by rating, or time

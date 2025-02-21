@@ -1,22 +1,35 @@
 import React from "react";
 import "./GameCard.css";
-import { getInterestLevel } from "../helpers";
+import { getInterestLevel, formatGameTime } from "../helpers";
 
-const GameCard = ({ game }) => {
+const GameCard = ({ game, showGameTime }) => {
     const interestLevel = getInterestLevel(game.slateScore);
+    const leagueLogo = `/img/leaguelogos/${game.sport}.png`;
 
     return (
         <div className={`game-card ${interestLevel.className}`}>
             <div className="game-header">
-                <div className="interest-level">{interestLevel.rating}</div>
+                <div className="interest-level">
+                    {interestLevel.rating}
+                </div>
             </div>
             <div className="game-body">
-                <div className="matchup">
-                    <TeamInfo homeAway="away" team={game.away} />
-                    <div className="versus">@</div>
-                    <TeamInfo homeAway="home" team={game.home} />
+                {/* <img src={leagueLogo} alt="League Logo" className="league-logo" /> */}
+                <div className="game-info">
+                    <div className="matchup">
+                        <TeamInfo homeAway="away" team={game.away} />
+                        <div className="matchup-divider">
+                            <div className="versus">@</div>
+                            {showGameTime && (
+                                <div className="card-game-time">
+                                    {formatGameTime(game.date)}
+                                </div>
+                            )}
+                        </div>
+                        <TeamInfo homeAway="home" team={game.home} />
+                    </div>
+                    <Broadcasts broadcasts={game.broadcasts} />
                 </div>
-                <Broadcasts broadcasts={game.broadcasts} />
             </div>
         </div>
     );
