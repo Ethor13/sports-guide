@@ -9,10 +9,6 @@ html {
     font-family: "Montserrat", sans-serif;
 }
 
-body {
-    margin: 0.5rem;
-}
-
 body.loading,
 body.loading * {
     cursor: wait !important;

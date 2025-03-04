@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import GamesList from "./components/GamesList";
 import SportSelector from "./components/SportSelector";
-import "./App.css";
+import "./GamesPage.css";
 
 const App = () => {
     const [selectedSports, setSelectedSports] = useState([]);

@@ -1,3 +1,5 @@
 node_modules
 img
 data
+.github/prompts
+.github/copilot-instructions.md
